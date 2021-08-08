@@ -15,85 +15,160 @@
       </v-col>
     </v-row>
 
-        <v-card flat v-for="todo in todos" :key="todo.id">
-          <v-row>
-            <v-col cols="12" md="10">
-              <p
-                v-if="todo.completed"
-                class="font-weight-light text-decoration-line-through"
-              >
-                {{ todo.title }}
-              </p>
-              <p v-else class="font-weight-light">
-                {{ todo.title }}
-              </p>
-            </v-col>
-            <v-col cols="12" md="2">
-              <EditTodoDialog @edit:todo="editTodo" :todo="todo" />
-              <v-icon>mdi-trash-can-outline</v-icon>
-            </v-col>
-          </v-row>
-        </v-card>
+    <v-card flat v-for="todo in todos" :key="todo.id">
+      <v-row>
+        <v-col cols="12" md="1"
+          ><v-checkbox
+            @change="markAsDoneTodo(todo)"
+            v-model="todo.completed"
+          ></v-checkbox
+        ></v-col>
+
+        <v-col class="mt-5" cols="12" md="8">
+          <p
+            v-if="todo.completed"
+            class="font-weight-light text-decoration-line-through"
+          >
+            {{ todo.title }}
+          </p>
+          <p v-else class="font-weight-light">
+            {{ todo.title }}
+          </p>
+        </v-col>
+
+        <v-col class="text-right" cols="12" md="3">
+          <v-icon @click="editTodo(todo)"> mdi-circle-edit-outline </v-icon>
+          <v-icon @click="deleteTodo(todo.id)">mdi-trash-can-outline</v-icon>
+        </v-col>
+      </v-row>
+    </v-card>
+    <!--  -->
+    <v-dialog v-model="dialog" width="500">
+      <v-card>
+        <v-toolbar color="primary" dark>Editing</v-toolbar>
+        <v-card-text>
+          <v-text-field
+            v-model="editedTodo.title"
+            class="font-italic"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions class="justify-space-around">
+          <v-btn text @click="saveEditTodo">Confirm</v-btn>
+          <v-btn text @click="cancelEditTodo">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!--  -->
   </v-container>
 </template>
 
 <script>
 import AddTodo from '../components/AddTodo.vue';
-import EditTodoDialog from '../components/EditTodoDialog.vue';
+// import EditTodoDialog from "../components/EditTodoDialog.vue";
+
+import db from '../plugins/firebase';
 
 export default {
   components: {
     AddTodo,
-    EditTodoDialog,
+    // EditTodoDialog,
   },
   data() {
     return {
-      newTodo: {
+      todos: [],
+      beforeEditCached: null,
+      editedTodo: {
+        id: '',
         title: '',
-        id: 100,
-        completed: false,
       },
-      todos: [
-        {
-          userId: 1,
-          id: 1,
-          title: 'delectus aut autem',
-          completed: false,
-        },
-        {
-          userId: 1,
-          id: 2,
-          title: 'quis ut nam facilis et officia qui',
-          completed: false,
-        },
-        {
-          userId: 1,
-          id: 3,
-          title: 'fugiat veniam minus',
-          completed: false,
-        },
-        {
-          userId: 1,
-          id: 4,
-          title: 'et porro tempora',
-          completed: true,
-        },
-        {
-          userId: 1,
-          id: 5,
-          title:
-            'laboriosam mollitia et enim quasi adipisci quia provident illum',
-          completed: false,
-        },
-      ],
+      dialog: false,
     };
+  },
+  created() {
+    db.collection('todos').onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          const data = change.doc.data();
+          data.id = change.doc.id;
+          this.todos.push(data);
+        }
+        if (change.type === 'modified') {
+          console.log('Modified data ', change.doc.data());
+          this.todos = this.todos.map((todo) => {
+            if (todo.id === change.doc.id) {
+              const updated = change.doc.data();
+              updated.id = change.doc.id;
+              return updated;
+            }
+            return todo;
+          });
+        }
+        if (change.type === 'removed') {
+          this.todos = this.todos.filter((todo) => todo.id !== change.doc.id);
+        }
+      });
+    });
   },
   methods: {
     addTodo(todo) {
-      console.log(todo.title);
+      // Add a new document with a generated id.
+      db.collection('todos')
+        .add(todo)
+        .then((docRef) => {
+          console.log('Document written with ID: ', docRef.id);
+        })
+        .catch((error) => {
+          console.error('Error adding document: ', error);
+        });
     },
     editTodo(todo) {
-      console.log(todo.title);
+      this.dialog = true;
+      this.beforeEditCached = todo;
+      this.editedTodo.id = todo.id;
+      this.editedTodo.title = todo.title;
+    },
+    saveEditTodo() {
+      db.collection('todos')
+        .doc(this.editedTodo.id)
+        .update({
+          title: this.editedTodo.title,
+        })
+        .then(() => {
+          console.log('Document successfully updated!');
+          this.dialog = false;
+        })
+        .catch((error) => {
+          // The document probably doesn't exist.
+          console.error('Error updating document: ', error);
+        });
+    },
+    cancelEditTodo() {
+      this.dialog = false;
+    },
+    markAsDoneTodo(todo) {
+      db.collection('todos')
+        .doc(todo.id)
+        .update({
+          completed: todo.completed,
+        })
+        .then(() => {
+          console.log('Document successfully updated!');
+        })
+        .catch((error) => {
+          // The document probably doesn't exist.
+          console.error('Error updating document: ', error);
+        });
+    },
+    deleteTodo(id) {
+      db.collection('todos')
+        .doc(id)
+        .delete()
+        .then(() => {
+          console.log('Document successfully deleted!');
+        })
+        .catch((error) => {
+          console.error('Error removing document: ', error);
+        });
     },
   },
 };

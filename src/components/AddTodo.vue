@@ -14,13 +14,15 @@
 export default {
   data() {
     return {
-      todo: {},
+      todo: {
+        completed: false,
+      },
     };
   },
   methods: {
     handleAdd() {
       this.$emit('add:todo', this.todo);
-      this.todo = {};
+      this.todo.title = '';
     },
   },
 };

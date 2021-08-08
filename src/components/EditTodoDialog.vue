@@ -21,15 +21,22 @@
 export default {
   data() {
     return {
+      beforeEditCached: null,
+      editedTodo: null,
       dialog: false,
     };
   },
   props: {
-    todo: Object,
+    todo: {
+    },
   },
   methods: {
     handleEdit() {
       this.$emit('edit:todo', this.todo);
+      this.dialog = false;
+    },
+    cancelEdit() {
+      this.dialog = false;
     },
   },
 };
