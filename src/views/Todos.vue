@@ -19,14 +19,14 @@
       <v-row>
         <v-col cols="1"
           ><v-checkbox
-          dense
-          color="success"
+            dense
+            color="success"
             @change="markAsDoneTodo(todo)"
             v-model="todo.completed"
           ></v-checkbox
         ></v-col>
 
-        <v-col class="mt-2" cols="8">
+        <v-col @dblclick="editTodo(todo)" class="mt-2" cols="8">
           <p
             v-if="todo.completed"
             class="font-weight-light text-decoration-line-through"
@@ -52,13 +52,18 @@
       <v-card>
         <v-toolbar color="primary" dark>Editing</v-toolbar>
         <v-card-text>
-          <v-text-field
+          <v-text-field v-on:keyup.enter="saveEditTodo"
             v-model="editedTodo.title"
             class="font-italic"
           ></v-text-field>
         </v-card-text>
         <v-card-actions class="justify-space-around">
-          <v-btn depressed color="primary" @click="saveEditTodo">Confirm</v-btn>
+          <v-btn
+            depressed
+            color="primary"
+            @click="saveEditTodo"
+            >Confirm</v-btn
+          >
           <v-btn depressed color="error" @click="cancelEditTodo">Cancel</v-btn>
         </v-card-actions>
       </v-card>
@@ -115,6 +120,9 @@ export default {
     });
   },
   methods: {
+    // test(todo) {
+    //   console.log(todo);
+    // },
     addTodo(todo) {
       // Add a new document with a generated id.
       db.collection('todos')
