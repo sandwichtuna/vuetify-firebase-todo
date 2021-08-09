@@ -1,9 +1,9 @@
 <template>
   <v-text-field
-          background-color="blue lighten-5"
+          background-color="blue lighten-3"
           solo
           label="Add a new todo"
-          prepend-inner-icon="mdi-plus-box"
+          prepend-inner-icon="mdi-pencil-plus"
           v-model="todo.title"
           v-on:keyup.enter="handleAdd"
         >

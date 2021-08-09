@@ -17,14 +17,16 @@
 
     <v-card flat v-for="todo in todos" :key="todo.id">
       <v-row>
-        <v-col cols="12" md="1"
+        <v-col cols="1"
           ><v-checkbox
+          dense
+          color="success"
             @change="markAsDoneTodo(todo)"
             v-model="todo.completed"
           ></v-checkbox
         ></v-col>
 
-        <v-col class="mt-5" cols="12" md="8">
+        <v-col class="mt-2" cols="8">
           <p
             v-if="todo.completed"
             class="font-weight-light text-decoration-line-through"
@@ -36,12 +38,15 @@
           </p>
         </v-col>
 
-        <v-col class="text-right" cols="12" md="3">
-          <v-icon @click="editTodo(todo)"> mdi-circle-edit-outline </v-icon>
-          <v-icon @click="deleteTodo(todo.id)">mdi-trash-can-outline</v-icon>
+        <v-col class="text-right" cols="3">
+          <v-icon color="brown" @click="editTodo(todo)"> mdi-pencil </v-icon>
+          <v-icon color="red darken-1" @click="deleteTodo(todo.id)"
+            >mdi-delete</v-icon
+          >
         </v-col>
       </v-row>
     </v-card>
+
     <!--  -->
     <v-dialog v-model="dialog" width="500">
       <v-card>
@@ -53,8 +58,8 @@
           ></v-text-field>
         </v-card-text>
         <v-card-actions class="justify-space-around">
-          <v-btn text @click="saveEditTodo">Confirm</v-btn>
-          <v-btn text @click="cancelEditTodo">Cancel</v-btn>
+          <v-btn depressed color="primary" @click="saveEditTodo">Confirm</v-btn>
+          <v-btn depressed color="error" @click="cancelEditTodo">Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
