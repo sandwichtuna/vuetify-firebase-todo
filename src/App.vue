@@ -24,7 +24,8 @@
       </div>
 
       <v-spacer></v-spacer>
-      <div><LoginDialog /></div>
+      <div v-if="user == null"><LoginDialog /></div>
+      <div v-else>Welcome, {{ user.email }}, {{ user.uid }}</div>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -48,11 +49,9 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
-      <template v-slot:append>
+      <template v-if="user != null" v-slot:append>
         <div class="pa-2">
-          <v-btn block text dark>
-            Logout
-          </v-btn>
+          <v-btn block text dark @click="signOut"> Logout </v-btn>
         </div>
       </template>
     </v-navigation-drawer>
@@ -65,19 +64,34 @@
 
 <script>
 import LoginDialog from './components/LoginDialog.vue';
+import store from './store';
 
 export default {
   name: 'App',
 
   data: () => ({
     links: [
-      { name: 'Dashboard', icon: 'mdi-view-dashboard', route: '/' },
+      { name: 'Home', icon: 'mdi-home', route: '/' },
+      { name: 'Dashboard', icon: 'mdi-view-dashboard', route: '/dashboard' },
       { name: 'About', icon: 'mdi-information-outline', route: '/about' },
       { name: 'Admin', icon: 'mdi-account-supervisor', route: '/admin' },
     ],
     drawer: false,
     group: null,
   }),
+
+  computed: {
+    user() {
+      return store.getters.getUser;
+    },
+  },
+
+  methods: {
+    signOut() {
+      store.dispatch('signOutAction');
+    },
+  },
+
   watch: {
     group() {
       this.drawer = false;

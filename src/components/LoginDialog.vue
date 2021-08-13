@@ -1,5 +1,5 @@
 <template>
-  <v-dialog transition="dialog-bottom-transition" max-width="700">
+  <v-dialog transition="dialog-bottom-transition" max-width="700" v-model="dialog">
     <template v-slot:activator="{ on, attrs }">
       <v-btn text v-bind="attrs" v-on="on"
         ><span class="text-body-1">Login</span>
@@ -32,10 +32,10 @@
           </v-col>
           <v-col cols="12">
             <v-card-actions class="justify-space-around">
-              <v-btn color="primary" @click="dialog.value = false">
+              <v-btn color="primary" @click="signIn">
                 Login
               </v-btn>
-              <v-btn color="error" @click="clear"> Clear </v-btn>
+              <v-btn color="error" @click="dialog.value=false"> Clear </v-btn>
             </v-card-actions>
           </v-col>
         </v-row>
@@ -45,6 +45,8 @@
 </template>
 
 <script>
+import store from '../store';
+
 export default {
   data() {
     return {
@@ -52,6 +54,7 @@ export default {
         email: '',
         password: '',
       },
+      dialog: false,
     };
   },
 
@@ -61,6 +64,13 @@ export default {
       this.user.password = '';
       // this.$router.push('/todos');
     },
+
+    signIn() {
+      store.dispatch('signInAction', this.user).then(() => {
+        this.dialog = false;
+      });
+    },
+
   },
 };
 </script>

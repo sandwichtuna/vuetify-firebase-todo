@@ -1,5 +1,7 @@
 import firebase from 'firebase/app';
+import 'firebase/auth';
 import 'firebase/firestore';
+import store from '../store';
 
 require('dotenv').config();
 
@@ -16,5 +18,17 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
+
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    store.state.user = user;
+    // ...
+  } else {
+    // User is signed out
+    // ...
+  }
+});
 
 export default db;

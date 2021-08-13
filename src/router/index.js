@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 // import { component } from 'vue/types/umd';
-// import Home from '../views/Home.vue';
-import Todos from '../views/Todos.vue';
+import Home from '../views/Home.vue';
+import Dashboard from '../views/Dashboard.vue';
 
 Vue.use(VueRouter);
 
@@ -10,12 +10,12 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Todos,
+    component: Home,
   },
   {
-    path: '/todos',
-    name: 'Todos',
-    component: Todos,
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: Dashboard,
   },
 ];
 
